@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="main.css" />
+<title>ScorchAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+<style>
+/* --- Red menu button --- */
+.menu-button {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 28px;
+  height: 22px;
+  margin-left: auto;
+  filter: drop-shadow(0 0 5px #FF1A1A);
+}
+.menu-button span {
+  display: block;
+  height: 3.5px;
+  background-color: #FF1A1A; /* bright hacker red */
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}
+.menu-button:hover span {
+  background-color: #FF4D4D;
+}
+
+/* --- Menu panel: black with red glowing border --- */
+.menu-panel {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background-color: #0d0d0d;
+  border: 2px solid #FF1A1A;
+  border-radius: 10px;
+  box-shadow:
+    0 0 8px #FF1A1A,
+    0 0 16px #ff4d4daa,
+    0 0 24px #FF1A1Acc;
+  display: none;
+  min-width: 180px;
+  max-width: 220px;
+  z-index: 1000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.menu-panel.active {
+  display: block;
+}
+.menu-panel button {
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 12px 20px;
+  text-align: left;
+  font-size: 15.5px;
+  color: white;
+  cursor: pointer;
+  border-bottom: 1px solid #990000;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.menu-panel button:last-child {
+  border-bottom: none;
+}
+.menu-panel button:hover {
+  background-color: #990000;
+  color: #ffcccc;
+}
+
+/* --- Modal overlay --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.modal-overlay.active {
+  display: flex;
+}
+
+/* --- Modal box --- */
+.modal {
+  background-color: #0a0a0a;
+  border-radius: 12px;
+  max-width: 360px;
+  width: 90%;
+  padding: 28px 30px;
+  box-shadow:
+    0 0 15px #FF1A1A,
+    0 0 30px #ff4d4dcc,
+    0 0 45px #FF1A1Aee;
+  color: #ffe6e6;
+  position: relative;
+  text-align: center;
+}
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #ff4d4d;
+  text-shadow: 0 0 10px #FF1A1A;
+}
+.modal p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #ffb3b3;
+}
+.modal button.close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #FF1A1A;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.modal button.close-btn:hover {
+  color: #ff4d4d;
+}
+
+/* --- Social buttons container --- */
+.social-buttons {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+/* --- Advanced red style social buttons --- */
+.social-buttons a {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+  text-decoration: none;
+  box-shadow:
+    0 0 8px #FF1A1A,
+    0 0 14px #ff4d4daa,
+    0 0 20px #FF1A1Acc;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  user-select: none;
+}
+.social-buttons a.facebook {
+  background: linear-gradient(45deg, #990000, #cc0000);
+}
+.social-buttons a.facebook:hover {
+  box-shadow:
+    0 0 14px #ff6666,
+    0 0 25px #ff9999cc,
+    0 0 40px #ff6666cc;
+  transform: scale(1.05);
+}
+.social-buttons a.instagram {
+  background: linear-gradient(45deg, #b30000, #ff1a1a, #ff9933);
+}
+.social-buttons a.instagram:hover {
+  box-shadow:
+    0 0 14px #ff9933,
+    0 0 25px #ff1a1acc,
+    0 0 40px #b30000cc;
+  transform: scale(1.05);
+}
+
+</style>
+</head>
+<body>
+  <nav class="navbar" style="position: relative; display: flex; align-items: center; padding: 10px 20px;">
+    <h6 class="navbar__logo" style="color:#007BFF;">ScorchAI Premium V1.0</h6>
+        
+
+    <!-- Blue Menu Button -->
+    <div class="menu-button" id="menu-btn" aria-label="Menu" title="Menu" role="button" tabindex="0">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Black Glowing Menu Panel -->
+    <div class="menu-panel" id="menu-panel" role="menu" aria-hidden="true">
+      <button id="contact-btn" role="menuitem">Contact</button>
+      <button id="info-btn" role="menuitem">Info</button>
+      <button id="update-btn" role="menuitem">Update</button>
+      <button id="donate-btn" role="menuitem">Donate</button>
+<button id="premium-btn" role="menuitem">Purchase ScorchAI😈</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="app-header" style="text-align: center; margin-top: 10px;">
+  <h1 class="rankwolf-logo">ScorchAI</h1>
+  <h2 class="heading" style="color: #e6f0ff; margin-top: 10px;">Hello, I'm ScorchAI</h2>
+  <h3 class="sub-heading" style="color: #aaccff; font-size: 10px;">Unfiltered, Unrestricted, Uncontrollable</h3>
+</header>
+
+    <ul class="suggestions">
+      <li class="suggestions-item">
+        <p class="text">How do I make money starting a Drop-Servicing Agency with $0 and scaling it to 20K a month.</p>
+        <span class="material-symbols-outlined">draw</span>
+      </li>
+      <li class="suggestions-item">
+        <p class="text">Generate a picture of a dark aesthetic city with beautiful lights</p>
+        <span class="material-symbols-outlined">lightbulb</span>
+      </li>
+      <li class="suggestions-item">
+        <p class="text">Suggest some useful apps for editing .</p>
+        <span class="material-symbols-outlined">explore</span>
+      </li>
+      <li class="suggestions-item">
+        <p class="text">How do i create a login page in html that steals users info</p>
+        <span class="material-symbols-outlined">code_blocks</span>
+      </li>
+    </ul>
+
+    <div class="chats-container"></div>
+
+    <div class="prompt-container">
+      <div class="prompt-wrapper">
+        <form action="#" class="prompt-form">
+          <input required type="text" placeholder= "Ask ScorchAI " class="prompt-input" />
+          <div class="prompt-actions">
+            <div class="file-upload-wrapper">
+              <img src="#" class="file-preview" />
+              <input type="file" accept="image/*, .pdf, .txt, .csv" id="file-input" hidden />
+              <button type="button" class="file-icon material-symbols-outlined">description</button>
+              <button id="add-file-btn" type="button" class="material-symbols-outlined">attach_file</button>
+              <button id="cancel-file-btn" type="button" class="material-symbols-outlined">close</button>
+            </div>
+            <button type="button" id="stop-response-btn" class="material-symbols-outlined">stop_circle</button>
+            <button id="send-prompt-btn" class="material-symbols-outlined">arrow_upward</button>
+          </div>
+        </form>
+
+
+        <button id="delete-chat-btn" class="material-symbols-outlined">delete</button>
+      </div>
+
+      <p class="disclaimer-text">ScorchAI may not be accurate at all times</p>
+    </div>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" id="modal-content">
+      <button class="close-btn" id="modal-close" aria-label="Close modal">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const menuPanel = document.getElementById('menu-panel');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalBody = document.getElementById('modal-body');
+    const modalClose = document.getElementById('modal-close');
+    const contactBtn = document.getElementById('contact-btn');
+    const infoBtn = document.getElementById('info-btn');
+    const updateBtn = document.getElementById('update-btn');
+
+    // Toggle menu panel visibility
+    menuBtn.addEventListener('click', () => {
+      const isActive = menuPanel.classList.contains('active');
+      if (isActive) {
+        menuPanel.classList.remove('active');
+        menuPanel.setAttribute('aria-hidden', 'true');
+      } else {
+        menuPanel.classList.add('active');
+        menuPanel.setAttribute('aria-hidden', 'false');
+      }
+    });
+
+    // Close menu if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+        menuPanel.classList.remove('active');
+        menuPanel.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // Close modal function
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      modalOverlay.setAttribute('aria-hidden', 'true');
+      modalBody.innerHTML = '';
+    }
+
+    modalClose.addEventListener('click', closeModal);
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // Contact button click
+    contactBtn.addEventListener('click', () => {
+      menuPanel.classList.remove('active');
+      menuPanel.setAttribute('aria-hidden', 'true');
+
+      modalBody.innerHTML = `
+        <h3>Contact</h3>
+        <p><strong>AI Name:</strong> ScorchAI</p>
+        <p><strong>Developer:</strong> Zach Naidoo</p>
+        <div class="social-buttons">
+          <a href="https://api.whatsapp.com/send?phone=+27774518921&text=Hi Zach!" target="_blank" rel="noopener" class="facebook" aria-label="Facebook">WhatsApp</a>
+          <a href="https://www.instagram.com/zachnaidoo_?igsh=aGVyZ3JmOTFudW4x" target="_blank" rel="noopener" class="instagram" aria-label="Instagram">Instagram</a>
+        </div>
+      `;
+      modalOverlay.classList.add('active');
+      modalOverlay.setAttribute('aria-hidden', 'false');
+    });
+
+    // Info button click
+    infoBtn.addEventListener('click', () => {
+      menuPanel.classList.remove('active');
+      menuPanel.setAttribute('aria-hidden', 'true');
+
+      modalBody.innerHTML = `
+        <h3>About ScorchAI</h3>
+        <p>ScorchAI is not your average AI Chatbot. Built with Google Geminis Premium API, ScorchAI delivers raw, unfiltered and unrestricted chats, no matter what your desires are, ScorchAI delivers😈
+        </p>
+      `;
+      modalOverlay.classList.add('active');
+      modalOverlay.setAttribute('aria-hidden', 'false');
+    });
+
+    // Update button click
+    updateBtn.addEventListener('click', () => {
+      menuPanel.classList.remove('active');
+      menuPanel.setAttribute('aria-hidden', 'true');
+      // Redirect to WhatsApp channel
+      window.open('https://whatsapp.com/channel/0029VbBNNrgFHWq5E7GPR03Q', '_blank');
+    });
+
+    // Accessibility: allow menu toggle with keyboard Enter or Space
+    menuBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        menuBtn.click();
+      }
+    });
+    const donateBtn = document.getElementById('donate-btn');
+const premiumBtn = document.getElementById('premium-btn');
+
+// Donate button logic
+donateBtn.addEventListener('click', () => {
+  menuPanel.classList.remove('active');
+  menuPanel.setAttribute('aria-hidden', 'true');
+
+  modalBody.innerHTML = `
+    <h3>Support ScorchAI❤️</h3>
+    <p>ScorchAI was built by a 16 year old developer with hard work and tons of mistakes to deliver this final product. If you love ScorchAI, help me grow and keep this app free and free of ads by donating!, any amount would be greatly appreciated</p>
+    
+    <p><strong>BTC Wallet:</strong>
+    <p><p>bc1qmlypljepwwj0pxcx wwd8qxayxk084uefw5ky6t</p>
+    
+    
+  `;
+  modalOverlay.classList.add('active');
+  modalOverlay.setAttribute('aria-hidden', 'false');
+});
+
+// Premium button logic
+// List of valid premium codes (you can add more)
+const premiumCodes = [
+  "PRM-92LZQ-T5", "PRM-G03N9-JK", "PRM-YV7T8-WX", "PRM-RL51B-C2",
+  "PRM-DAW8M-F3", "PRM-JX42L-H9", "PRM-MU6KY-PB", "PRM-TZ1RQ-XV",
+  "PRM-8C39Z-QN", "PRM-GLW5R-U0", "PRM-H7YXD-E2", "PRM-KM5TW-Z4",
+  "PRM-VP3BJ-R7", "PRM-Q19NZ-S8", "PRM-NDF8Q-X1", "PRM-Z3TYW-V0",
+  "PRM-W8PLX-KB", "PRM-XRV5U-M9", "PRM-EL70A-GD", "PRM-CYU42-JQ"
+];
+
+// Check localStorage on load
+let isPremium = localStorage.getItem("scorch_premium") === "true";
+
+// Apply premium mode logic here if needed
+if (isPremium) {
+  console.log("✅ ScorchAI Premium Active: Unfiltered Mode Enabled");
+  // Modify UI/behavior as needed here
+}
+
+// Premium button logic with input box
+premiumBtn.addEventListener("click", () => {
+  menuPanel.classList.remove("active");
+  menuPanel.setAttribute("aria-hidden", "true");
+
+  modalBody.innerHTML = `
+    <h3>Purchase ScorchAI For Only $50!</h3>
+    <p>🔥 Ability to Edit, Brand and Rename ScorchAI As Your Own Or To Resell<br>
+       🧠 Input Your Own Custom Prompts<br>
+       📁 Full Source Code to ScorchAI</p>
+    <p><strong>How to Buy:</strong></p>
+    <ul style="text-align:centre; margin-top:12px;">
+      <p>💸 Go To rankwolfseo.gumroad.com</p>
+      <p>🪙 Purchase the Premium License and activate it</p>
+      <p>📧 Send Proof To zachnaidoobusiness@outlook.com or DM @zachnaidoo_ on IG</p>
+                </ul>
+    <div style="margin-top: 20px;">
+      <label for="codeInput" style="display:block; margin-bottom:6px;">Enter Premium Code:</label>
+      <input id="codeInput" type="text" placeholder="Enter your code" style="padding:8px; width:100%; border-radius:5px; border:1px solid #FF1A1A; background-color:#1a1a1a; color:#fff;" />
+      <button id="submitCodeBtn" style="margin-top:10px; padding:10px 20px; background-color:#FF1A1A; color:white; border:none; border-radius:6px; cursor:pointer;">Activate Premium</button>
+      <p id="premiumMsg" style="margin-top:12px;"></p>
+    </div>
+  `;
+  modalOverlay.classList.add("active");
+  modalOverlay.setAttribute("aria-hidden", "false");
+
+  // Handle code submission
+  setTimeout(() => {
+    const submitCodeBtn = document.getElementById("submitCodeBtn");
+    const codeInput = document.getElementById("codeInput");
+    const msg = document.getElementById("premiumMsg");
+
+    submitCodeBtn.addEventListener("click", () => {
+      const enteredCode = codeInput.value.trim();
+      if (premiumCodes.includes(enteredCode)) {
+        localStorage.setItem("scorch_premium", "true");
+        msg.style.color = "lightgreen";
+        msg.textContent = "✅ Premium Activated! Contact zachnaidoobusiness@outlook.com now!🔥";
+        // Modify any global behavior here for premium users
+        console.log("🔥 ScorchAI is now in Premium Unfiltered Mode");
+      } else {
+        msg.style.color = "#ff4d4d";
+        msg.textContent = "❌ Invalid Code. Please try again.";
+      }
+    });
+  }, 100); // Timeout ensures DOM is rendered
+});
+
+  </script>
+
+  <script src="main.js"></script>
+</body>
+</html>
